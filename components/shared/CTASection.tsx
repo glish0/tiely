@@ -1,8 +1,10 @@
+'use client'
+
 import { motion } from "framer-motion";
 
 const CTASection = () => (
   <section id="cta" className="py-28 relative overflow-hidden">
-    <div className="absolute inset-0 bg-primary/5 blur-[100px] rounded-full mx-auto w-[600px] h-[400px] top-1/2 -translate-y-1/2" />
+    <div className="absolute inset-0 bg-primary/5 blur-[100px] rounded-full mx-auto w-150 h-100 top-1/2 -translate-y-1/2" />
 
     <div className="container mx-auto px-6 relative z-10">
       <motion.div

@@ -1,3 +1,5 @@
+'use client'
+
 import { motion } from "framer-motion";
 import { QrCode, Users, ScanLine, Palette, MessageCircle, BarChart3 } from "lucide-react";
 

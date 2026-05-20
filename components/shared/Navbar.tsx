@@ -1,6 +1,9 @@
+'use client'
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import Link from "next/link";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -23,13 +26,13 @@ const Navbar = () => {
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-8">
           {links.map((l) => (
-            <a
+            <Link
               key={l.href}
               href={l.href}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
               {l.label}
-            </a>
+            </Link>
           ))}
           <a
             href="#cta"

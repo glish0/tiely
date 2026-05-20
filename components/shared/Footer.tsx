@@ -5,7 +5,7 @@ const Footer = () => (
         <div>
           <span className="font-serif text-xl font-bold text-gradient-gold">Tiely</span>
           <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-            La plateforme premium d'invitations digitales pour les mariages en Afrique.
+            La plateforme premium d&apos;invitations digitales pour les mariages en Afrique.
           </p>
         </div>
         <div>
