@@ -136,17 +136,33 @@ export default function GuestsPage() {
 
   const buildInvitationMessage = (group: GuestGroupWithGuests) => {
     const url = getInvitationUrl(group.invitation_slug);
+
+    const guestName = group.name?.trim().toUpperCase() || "INVITÉ(E)";
+
     const weddingName = group.weddings
       ? `${group.weddings.groom} & ${group.weddings.bride}`
       : "notre mariage";
 
+    const displayGuestName =
+      group.group_type === "couple"
+        ? `MR ET MME ${guestName}`
+        : guestName;
+
     return [
-      `Bonjour ${group.name ?? ""},`,
-      `Vous etes invite(e) au mariage de ${weddingName}.`,
-      `Ouvrez votre invitation ici: ${url}`,
-    ]
-      .filter(Boolean)
-      .join("\n");
+      `✨ Invitation de mariage ✨`,
+      ``,
+      `Bonjour ${displayGuestName},`,
+      ``,
+      `Nous avons le plaisir de vous inviter au mariage de ${weddingName}.`,
+      ``,
+      `Veuillez ouvrir votre invitation personnalisée ici :`,
+      `${url}`,
+      ``,
+      `Vous pourrez confirmer votre présence et télécharger votre billet d’entrée avec QR Code.`,
+      ``,
+      `Avec joie,`,
+      `${weddingName} 💍`,
+    ].join("\n");
   };
 
   const sendInvitation = async (group: GuestGroupWithGuests) => {
