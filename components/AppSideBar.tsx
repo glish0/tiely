@@ -37,7 +37,7 @@ export function AppSidebar() {
     { title: t("weddings"), url: "/weddings", icon: Heart },
     { title: t("guests"), url: "/guests", icon: Users },
     { title: t("tickets"), url: "/tickets", icon: Ticket },
-    { title: t("analytics"), url: "/analytics", icon: BarChart3 },
+
     { title: t("settings"), url: "/parametre", icon: Settings },
   ];
 
@@ -45,9 +45,8 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent className="pt-6">
         <div
-          className={`px-4 mb-8 flex items-center gap-2 ${
-            collapsed ? "justify-center" : ""
-          }`}
+          className={`px-4 mb-8 flex items-center gap-2 ${collapsed ? "justify-center" : ""
+            }`}
         >
           <Heart className="h-7 w-7 text-primary fill-primary" />
           {!collapsed && (
@@ -69,11 +68,10 @@ export function AppSidebar() {
                       <NavLink
                         href={item.url} // ✅ Next.js
                         exact={item.url === "/"} // remplace "end"
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
-                          isActive
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${isActive
                             ? "bg-primary/10 text-primary font-medium"
                             : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                        }`}
+                          }`}
                         activeClassName="bg-primary/10 text-primary font-medium"
                       >
                         <item.icon className="h-5 w-5 shrink-0" />

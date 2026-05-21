@@ -155,12 +155,29 @@ export default async function Image({ params }: Props) {
     );
 }
 
+function getUppercasePart(name: string) {
+    const uppercaseWords = name
+        .trim()
+        .split(/\s+/)
+        .filter((word) => {
+            return word === word.toUpperCase() && /[A-ZÀ-Ÿ]/.test(word);
+        });
+
+    return uppercaseWords.join(" ");
+}
+
 function formatGuestName(name: string, groupType: string) {
-    const guestName = name.trim().toUpperCase();
+    const uppercasePart = name
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word === word.toUpperCase() && /[A-ZÀ-Ÿ]/.test(word))
+        .join(" ");
+
+    const finalName = uppercasePart || name.trim().toUpperCase();
 
     if (groupType === "couple") {
-        return `Mr/Mme ${guestName}`;
+        return `Mr et Mme ${finalName}`;
     }
 
-    return guestName;
+    return finalName;
 }

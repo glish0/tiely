@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,12 +46,30 @@ const guestSchema = z.object({
   is_child: z.boolean().default(false),
 });
 
-const schema = z.object({
-  wedding_id: z.string().min(1, "Le mariage est obligatoire"),
-  group_type: z.enum(["single", "couple"]),
-  table_number: z.number().nullable(),
-  guests: z.array(guestSchema).min(1).max(2),
-});
+const schema = z
+  .object({
+    wedding_id: z.string().min(1, "Le mariage est obligatoire"),
+    group_type: z.enum(["single", "couple"]),
+    table_number: z.number().nullable(),
+    guests: z.array(guestSchema).min(1).max(2),
+  })
+  .superRefine((data, ctx) => {
+    if (data.group_type === "single" && data.guests.length !== 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Une invitation individuelle doit avoir un seul invité",
+        path: ["guests"],
+      });
+    }
+
+    if (data.group_type === "couple" && data.guests.length !== 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Une invitation couple doit avoir deux invités",
+        path: ["guests"],
+      });
+    }
+  });
 
 type FormInput = z.input<typeof schema>;
 type FormValues = z.output<typeof schema>;
@@ -68,32 +86,62 @@ export function GuestFormModal({ trigger }: { trigger: React.ReactNode }) {
   const { mutate: createGuestMutation } = useCreateGuest();
   const selectedWeddingId = weddings[0]?.id || "";
 
+  const emptyGuest = {
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    is_child: false,
+  };
+
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      wedding_id: weddings[0]?.id || "",
+      wedding_id: "",
       group_type: "single",
       table_number: null,
       guests: [
         {
-          first_name: "",
-          last_name: "",
-          email: "",
-          phone: "",
-          is_child: false,
-        },
-        {
-          first_name: "",
-          last_name: "",
-          email: "",
-          phone: "",
-          is_child: false,
+          ...emptyGuest,
         },
       ],
     },
   });
 
   const groupType = form.watch("group_type");
+
+  useEffect(() => {
+    const currentGuests = form.getValues("guests");
+
+    if (groupType === "single") {
+      form.setValue("guests", [currentGuests[0] ?? emptyGuest], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+
+    if (groupType === "couple") {
+      form.setValue(
+        "guests",
+        [
+          currentGuests[0] ?? emptyGuest,
+          currentGuests[1] ?? emptyGuest,
+        ],
+        {
+          shouldValidate: true,
+          shouldDirty: true,
+        }
+      );
+    }
+  }, [groupType, form]);
+
+  useEffect(() => {
+    if (weddings.length > 0 && !form.getValues("wedding_id")) {
+      form.setValue("wedding_id", weddings[0].id, {
+        shouldValidate: true,
+      });
+    }
+  }, [weddings, form]);
 
   const onSubmit = async (values: FormValues) => {
     try {
