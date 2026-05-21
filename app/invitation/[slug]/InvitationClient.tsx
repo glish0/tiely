@@ -421,11 +421,13 @@ function ProgramItem({
 }
 
 function formatGuestName(invitation: Invitation) {
+  const guestName = invitation.name.trim().toUpperCase();
+
   if (invitation.group_type === "couple") {
-    return `Mr et Mme ${invitation.name}`;
+    return `Mr/Mme ${guestName}`;
   }
 
-  return invitation.name;
+  return `Mr/Mme ${guestName}`;
 }
 
 function Info({ label, value }: { label: string; value: string }) {
