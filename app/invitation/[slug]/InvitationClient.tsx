@@ -35,41 +35,104 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
 
   const qrValue = `${process.env.NEXT_PUBLIC_SITE_URL}/verify-ticket/${invitation.qr_token}`;
 
-  const confirmPresence = async () => {
+  /*   const confirmPresence = async () => {
+      try {
+        setLoading(true);
+  
+        const res = await fetch("/api/invitations/confirm-presence", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            invitationId: invitation.id,
+          }),
+        });
+  
+        if (res.ok) {
+          setStatus("confirmed");
+        }
+      } finally {
+        setLoading(false);
+      }
+    }; */
+
+  const respondPresence = async (nextStatus: "confirmed" | "declined") => {
     try {
       setLoading(true);
 
-      const res = await fetch("/api/invitations/confirm-presence", {
+      const res = await fetch("/api/invitations/respond", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           invitationId: invitation.id,
+          status: nextStatus,
         }),
       });
 
-      if (res.ok) {
-        setStatus("confirmed");
+      if (!res.ok) {
+        throw new Error("Impossible d'enregistrer votre réponse.");
       }
+
+      setStatus(nextStatus);
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
+  const confirmPresence = () => {
+    respondPresence("confirmed");
+  };
+
+  const declinePresence = () => {
+    respondPresence("declined");
+  };
   const downloadTicket = async () => {
     if (!ticketRef.current) return;
 
+    await document.fonts.ready;
+
     const canvas = await html2canvas(ticketRef.current, {
       scale: 3,
+      useCORS: true,
+      allowTaint: true,
       backgroundColor: "#ffffff",
+      removeContainer: true,
+
+      onclone: (clonedDocument) => {
+        const ticket = clonedDocument.querySelector("#ticket-to-download");
+
+        if (ticket instanceof HTMLElement) {
+          ticket.style.backgroundColor = "#ffffff";
+          ticket.style.color = "#111111";
+          ticket.style.boxShadow = "none";
+
+          ticket.querySelectorAll("*").forEach((el) => {
+            if (el instanceof HTMLElement) {
+              el.style.boxShadow = "none";
+            }
+          });
+        }
+      },
     });
 
     const link = document.createElement("a");
-    link.download = `billet-${invitation.name}.png`;
+    link.download = `billet-${formatFileName(invitation.name)}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
+
+  function formatFileName(name: string) {
+    return name
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9À-ÿ-]/gi, "");
+  }
 
   return (
     <main className="min-h-screen bg-gradient-dark px-4 py-8 text-foreground">
@@ -110,6 +173,7 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
             status={status}
             loading={loading}
             onConfirm={confirmPresence}
+            onDecline={declinePresence}
           />
         </div>
 
@@ -181,8 +245,7 @@ function HeroSection() {
         </h1>
 
         <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
-          Ont le plaisir de vous faire part de leur union civile et de vous
-          inviter à partager ce moment précieux avec eux.
+          Ont le plaisir de vous faire part de leur union civil et religieux.
         </p>
 
         <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-primary/30 bg-primary/10 px-5 py-3 text-sm font-semibold text-primary">
@@ -199,11 +262,13 @@ function GuestCard({
   status,
   loading,
   onConfirm,
+  onDecline,
 }: {
   invitation: Invitation;
   status: Invitation["rsvp_status"];
   loading: boolean;
   onConfirm: () => void;
+  onDecline: () => void;
 }) {
   return (
     <div className="glass-card rounded-3xl p-5 md:p-6">
@@ -238,14 +303,28 @@ function GuestCard({
           <CheckCircle2 className="h-5 w-5" />
           Votre présence est confirmée.
         </div>
+      ) : status === "declined" ? (
+        <div className="mt-5 rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
+          Vous avez indiqué que vous ne serez pas présent(e).
+        </div>
       ) : (
-        <button
-          onClick={onConfirm}
-          disabled={loading}
-          className="mt-5 w-full rounded-2xl bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-gold transition hover:opacity-90 disabled:opacity-60"
-        >
-          {loading ? "Confirmation..." : "Confirmer ma présence"}
-        </button>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="rounded-2xl bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-gold transition hover:opacity-90 disabled:opacity-60"
+          >
+            {loading ? "Confirmation..." : "Confirmer ma présence"}
+          </button>
+
+          <button
+            onClick={onDecline}
+            disabled={loading}
+            className="rounded-2xl border border-destructive/30 bg-destructive/10 px-5 py-3 font-semibold text-destructive transition hover:bg-destructive/15 disabled:opacity-60"
+          >
+            Je ne serai pas là
+          </button>
+        </div>
       )}
     </div>
   );
@@ -261,83 +340,56 @@ function TicketCard({
   qrValue: string;
 }) {
   const guestDisplayName = formatGuestName(invitation);
+
   return (
     <div
+      id="ticket-to-download"
       ref={refElement}
-      className="relative mx-auto w-full max-w-md overflow-hidden rounded-[2rem] border border-primary/30 bg-white p-6 text-center text-black shadow-2xl"
+      className="relative mx-auto aspect-[527/746] w-full max-w-md overflow-hidden rounded-[1.5rem] border bg-white text-black"
+      style={{
+        borderColor: "#d8b56a",
+        boxShadow: "0 25px 60px rgba(0,0,0,0.25)",
+      }}
     >
-      {/* Fond léger */}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,#fffdf8_0%,#fffaf1_100%)]" />
-      <div className="absolute inset-3 rounded-[1.6rem] border border-[#ead39a]" />
+      <img
+        src="/sos_v4.png"
+        alt="Invitation Ghislaine et Sosthène"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
 
-      {/* Coins décoratifs */}
-      <FloralCorner position="top-left" />
-      <FloralCorner position="top-right" />
-      <FloralCorner position="bottom-left" />
-      <FloralCorner position="bottom-right" />
+      <div className="absolute bottom-[3%] left-1/2 z-20 w-[34%] -translate-x-1/2">
+        <div
+          className="rounded bg-white p-0.5"
+          style={{
+            border: "1px solid #c69a3b",
+            boxShadow: "0 8px 15px rgba(0,0,0,0.15)",
+          }}
+        >
+          <p
+            className="mb-1 text-center text-[5px] font-bold uppercase tracking-[0.22em]"
+            style={{ color: "#9b6b1c" }}
+          >
+            Scan à l’entrée
+          </p>
 
-      {/* Contenu */}
-      <div className="relative z-10">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#9b7a35]">
-          Billet d’entrée
-        </p>
-
-        <h3 className="mt-4 font-serif text-4xl font-semibold italic leading-tight text-[#7a5a1f]">
-          Ghislaine
-          <br />
-          <span className="inline-block mt-1">Sosthène</span>
-        </h3>
-
-        <div className="mt-3 flex items-center justify-center gap-2 text-[#b58b2c]">
-          <span className="h-px w-10 bg-[#d8b56a]" />
-          <span className="text-lg">✦</span>
-          <span className="h-px w-10 bg-[#d8b56a]" />
-        </div>
-
-        <p className="mt-4 text-sm font-semibold uppercase tracking-[0.25em] text-[#7d5d25]">
-          Samedi 8 Août
-        </p>
-
-        <div className="mx-auto mt-5 h-px w-full max-w-[220px] bg-[#e8d7ad]" />
-
-        <div className="mt-5 space-y-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-[#9e8a60]">
-              Nom de l’invité
-            </p>
-            <p className="mt-1 text-xl font-bold text-[#3f2c12]">
-              {guestDisplayName}
-            </p>
+          <div className="flex items-center justify-center bg-white">
+            <QRCodeCanvas
+              value={qrValue}
+              size={70}
+              bgColor="#ffffff"
+              fgColor="#000000"
+              level="H"
+              includeMargin={false}
+            />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border border-[#eadcb8] bg-[#fffaf0] px-3 py-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-[#9e8a60]">
-                Places
-              </p>
-              <p className="mt-1 text-base font-bold text-[#3f2c12]">
-                {invitation.max_guests}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-[#eadcb8] bg-[#fffaf0] px-3 py-3">
-              <p className="text-xs uppercase tracking-[0.12em] text-[#9e8a60]">
-                Table
-              </p>
-              <p className="mt-1 text-base font-bold text-[#3f2c12]">
-                {invitation.table_number ?? "-"}
-              </p>
-            </div>
-          </div>
+          <p
+            className="mt-1 text-center text-[6px] font-semibold uppercase tracking-[0.18em]"
+            style={{ color: "#9b6b1c" }}
+          >
+            Merci
+          </p>
         </div>
-
-        <div className="mx-auto mt-6 flex w-fit items-center justify-center rounded-[1.5rem] border border-[#e6d19d] bg-white p-4 shadow-sm">
-          <QRCodeCanvas value={qrValue} size={160} />
-        </div>
-
-        <p className="mt-4 text-xs text-[#8d7a53]">
-          Présentez ce billet à l’entrée
-        </p>
       </div>
     </div>
   );
