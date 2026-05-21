@@ -2,11 +2,13 @@ import { VerifyTicketClient } from "@/components/VerifyTicketClient";
 
 
 type PageProps = {
-    params: {
+    params: Promise<{
         token: string;
-    };
+    }>;
 };
 
-export default function VerifyTicketPage({ params }: PageProps) {
-    return <VerifyTicketClient token={params.token} />;
+export default async function VerifyTicketPage({ params }: PageProps) {
+    const { token } = await params;
+    console.log('TOKEN', token)
+    return <VerifyTicketClient token={token} />;
 }

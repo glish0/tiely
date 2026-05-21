@@ -33,9 +33,9 @@ import {
 import { GuestFormModal } from "@/components/form/GuestFormModal";
 
 const statusColors: Record<string, string> = {
-  invited: "bg-warning/15 text-warning border-warning/20",
-  confirmed: "bg-primary/15 text-primary border-primary/20",
-  declined: "bg-destructive/15 text-destructive border-destructive/20",
+  "invited": "bg-warning/15 text-warning border-warning/20",
+  "confirmed": "bg-primary/15 text-primary border-primary/20",
+  "declined": "bg-destructive/15 text-destructive border-destructive/20",
   "checked-in": "bg-success/15 text-success border-success/20",
 };
 
@@ -67,11 +67,11 @@ const getGroupStatus = (group: GuestGroupWithGuests) => {
     return "checked-in";
   }
 
-  if (group.rsvp_response?.attending === true) {
+  if (group.rsvp_status === 'confirmed') {
     return "confirmed";
   }
 
-  if (group.rsvp_response?.attending === false) {
+  if (group.rsvp_status === 'declined') {
     return "declined";
   }
 

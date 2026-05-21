@@ -57,7 +57,7 @@ export type CreateGuestGroupInput = {
   wedding_id: string;
   group_type: string;
   table_number?: number | null;
-   first_name: string;
+  first_name: string;
   last_name: string;
   email?: string;
   phone?: string;
@@ -126,7 +126,7 @@ export type GuestWithWedding = {
     bride: string;
     event_date: string;
   } | null;
-  guest_group?:GuestGroup
+  guest_group?: GuestGroup
 };
 
 export type CheckInResult = {
@@ -135,7 +135,7 @@ export type CheckInResult = {
 };
 
 
- export type GuestGroup = {
+export type GuestGroup = {
   id: string
 
   wedding_id: string
@@ -197,7 +197,7 @@ export type SubmitRsvpInput = {
 
 export type GuestGroupWithGuests = GuestGroup & {
   guests: GuestWithWedding[];
-  rsvp_response?: RsvpResponse | null;
+  rsvp_status?: string;
   weddings?: {
     id: string;
     groom: string;

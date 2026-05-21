@@ -33,7 +33,7 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
   const [status, setStatus] = useState(invitation.rsvp_status);
   const [loading, setLoading] = useState(false);
 
-  const qrValue = `${process.env.NEXT_PUBLIC_SITE_URL}/verify-ticket/${invitation.qr_token}`;
+  const qrValue = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/verify-ticket/${invitation.qr_token}`;
 
   /*   const confirmPresence = async () => {
       try {
@@ -135,8 +135,8 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-dark px-4 py-8 text-foreground">
-      <section className="mx-auto max-w-5xl overflow-hidden rounded-4xl border border-border bg-card shadow-2xl glow-gold">
+    <main className="min-h-screen bg-invitation-light px-4 py-8 text-[#2f2412]">
+      <section className="mx-auto max-w-5xl overflow-hidden rounded-4xl border border-[#ead39a] bg-white shadow-2xl">
         <HeroSection />
 
         <div className="grid gap-6 p-5 md:p-8 lg:grid-cols-[1.15fr_0.85fr]">
@@ -177,7 +177,7 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
           />
         </div>
 
-        <div className="border-t border-border p-5 md:p-8">
+        <div className="border-t border-[#ead39a] bg-[#fffdf8] p-5 md:p-8">
           <SectionTitle
             eyebrow="Billet"
             title="Votre billet d’entrée"
@@ -191,17 +191,17 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
               qrValue={qrValue}
             />
 
-            <div className="glass-gold rounded-3xl p-5 md:p-6">
+            <div className="rounded-3xl border border-[#ead39a] bg-white p-5 shadow-sm md:p-6">
               <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-gold">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#9b6b1c] text-white shadow-lg">
                   <Ticket className="h-6 w-6" />
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-bold text-card-foreground">
+                  <h3 className="text-xl font-bold text-[#2f2412]">
                     Billet personnel et sécurisé
                   </h3>
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  <p className="mt-2 text-sm leading-6 text-[#6f5a35]">
                     Ce billet contient un QR Code unique. Il permet à l’équipe
                     d’accueil de vérifier votre identité, votre nombre de places,
                     votre table et de confirmer si vous êtes déjà entré ou non.
@@ -211,7 +211,7 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
 
               <button
                 onClick={downloadTicket}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-gold transition hover:opacity-90 disabled:opacity-60"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#9b6b1c] px-5 py-3 font-semibold text-white shadow-lg transition hover:bg-[#7a5316] disabled:opacity-60"
               >
                 <Download className="h-5 w-5" />
                 Télécharger votre billet
@@ -224,7 +224,7 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
   );
 }
 
-function HeroSection() {
+/* function HeroSection() {
   return (
     <div className="relative overflow-hidden border-b border-border bg-card px-6 py-12 text-center md:px-10 md:py-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.25),transparent_45%)]" />
@@ -255,9 +255,42 @@ function HeroSection() {
       </div>
     </div>
   );
+} */
+
+function HeroSection() {
+  return (
+    <div className="relative overflow-hidden border-b border-[#ead39a] bg-[#fffaf0] px-6 py-12 text-center md:px-10 md:py-16">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(214,169,61,0.22),transparent_45%)]" />
+      <div className="absolute -left-20 top-10 h-48 w-48 rounded-full bg-[#d6a93d]/15 blur-3xl" />
+      <div className="absolute -right-20 bottom-0 h-48 w-48 rounded-full bg-[#d6a93d]/15 blur-3xl" />
+
+      <div className="relative z-10 mx-auto max-w-3xl">
+        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#b8860b] text-white shadow-lg">
+          <Sparkles className="h-7 w-7" />
+        </div>
+
+        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-[#8a6a25]">
+          Invitation de mariage
+        </p>
+
+        <h1 className="mt-5 font-serif text-5xl font-bold italic leading-tight text-[#9b6b1c] md:text-7xl">
+          Ghislaine & Sosthène
+        </h1>
+
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#4b3820] md:text-lg">
+          Ont le plaisir de vous faire part de leur union civile et religieuse.
+        </p>
+
+        <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-[#d8b56a] bg-white px-5 py-3 text-sm font-semibold text-[#7a5a1f] shadow-sm">
+          <CalendarDays className="h-5 w-5" />
+          Samedi 8 Août
+        </div>
+      </div>
+    </div>
+  );
 }
 
-function GuestCard({
+/* function GuestCard({
   invitation,
   status,
   loading,
@@ -329,7 +362,7 @@ function GuestCard({
     </div>
   );
 }
-
+ */
 function TicketCard({
   refElement,
   invitation,
@@ -339,8 +372,6 @@ function TicketCard({
   invitation: Invitation;
   qrValue: string;
 }) {
-  const guestDisplayName = formatGuestName(invitation);
-
   return (
     <div
       id="ticket-to-download"
@@ -357,22 +388,51 @@ function TicketCard({
         className="absolute inset-0 h-full w-full object-cover"
       />
 
-      <div className="absolute bottom-[3%] left-1/2 z-20 w-[34%] -translate-x-1/2">
+      {/* QR Code dynamique centré sans transform */}
+      <div
+        className="absolute z-20"
+        style={{
+          bottom: "3%",
+          left: 0,
+          right: 0,
+          width: "34%",
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}
+      >
         <div
-          className="rounded bg-white p-0.5"
+          className="rounded bg-white"
           style={{
             border: "1px solid #c69a3b",
             boxShadow: "0 8px 15px rgba(0,0,0,0.15)",
+            padding: "2px",
+            textAlign: "center",
           }}
         >
           <p
-            className="mb-1 text-center text-[5px] font-bold uppercase tracking-[0.22em]"
-            style={{ color: "#9b6b1c" }}
+            style={{
+              marginBottom: "3px",
+              textAlign: "center",
+              fontSize: "5px",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.22em",
+              color: "#9b6b1c",
+              lineHeight: 1.2,
+            }}
           >
             Scan à l’entrée
           </p>
 
-          <div className="flex items-center justify-center bg-white">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#ffffff",
+              width: "100%",
+            }}
+          >
             <QRCodeCanvas
               value={qrValue}
               size={70}
@@ -380,12 +440,23 @@ function TicketCard({
               fgColor="#000000"
               level="H"
               includeMargin={false}
+              style={{
+                display: "block",
+              }}
             />
           </div>
 
           <p
-            className="mt-1 text-center text-[6px] font-semibold uppercase tracking-[0.18em]"
-            style={{ color: "#9b6b1c" }}
+            style={{
+              marginTop: "3px",
+              textAlign: "center",
+              fontSize: "6px",
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.18em",
+              color: "#9b6b1c",
+              lineHeight: 1.2,
+            }}
           >
             Merci
           </p>
@@ -395,53 +466,82 @@ function TicketCard({
   );
 }
 
-
-function FloralCorner({
-  position,
+function GuestCard({
+  invitation,
+  status,
+  loading,
+  onConfirm,
+  onDecline,
 }: {
-  position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  invitation: Invitation;
+  status: Invitation["rsvp_status"];
+  loading: boolean;
+  onConfirm: () => void;
+  onDecline: () => void;
 }) {
-  const positionClass = {
-    "top-left": "left-0 top-0",
-    "top-right": "right-0 top-0 rotate-90",
-    "bottom-left": "left-0 bottom-0 -rotate-90",
-    "bottom-right": "right-0 bottom-0 rotate-180",
-  }[position];
-
   return (
-    <div className={`absolute ${positionClass} z-0 h-40 w-40 pointer-events-none`}>
-      {/* Tige / branche */}
-      <div className="absolute left-6 top-8 h-24 w-[2px] rounded-full bg-gradient-to-b from-[#d2a94a] via-[#f0d891] to-[#b7862d]" />
-      <div className="absolute left-8 top-10 h-[2px] w-20 rounded-full bg-gradient-to-r from-[#d2a94a] via-[#f0d891] to-[#b7862d]" />
+    <div className="rounded-3xl border border-[#ead39a] bg-white p-5 shadow-sm md:p-6">
+      <p className="text-sm font-medium text-[#8a6a25]">
+        Votre invitation
+      </p>
 
-      {/* Feuilles */}
-      <div className="absolute left-10 top-10 h-4 w-8 rotate-[-25deg] rounded-full bg-gradient-to-r from-[#b7862d] to-[#efd27d]" />
-      <div className="absolute left-14 top-16 h-4 w-8 rotate-[35deg] rounded-full bg-gradient-to-r from-[#b7862d] to-[#efd27d]" />
-      <div className="absolute left-20 top-8 h-4 w-8 rotate-[10deg] rounded-full bg-gradient-to-r from-[#b7862d] to-[#efd27d]" />
+      <h2 className="mt-2 text-2xl font-bold text-[#2f2412]">
+        {invitation.name}
+      </h2>
 
-      {/* Fleur principale */}
-      <div className="absolute left-2 top-2 flex h-16 w-16 items-center justify-center rounded-full bg-[radial-gradient(circle,#fff6dc_5%,#e6c872_35%,#bf8d30_70%,#9a6a1d_100%)] shadow-sm">
-        <div className="grid grid-cols-3 gap-[2px]">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <span
-              key={i}
-              className="block h-3 w-3 rounded-full bg-[#f8e6b0]"
-            />
-          ))}
-        </div>
+      <div className="mt-5 grid gap-3">
+        <Info
+          label="Type"
+          value={invitation.group_type === "couple" ? "Couple" : "Célibataire"}
+        />
+
+        <Info label="Places" value={`${invitation.max_guests}`} />
+
+        <Info
+          label="Table"
+          value={
+            invitation.table_number
+              ? `Table ${invitation.table_number}`
+              : "Non définie"
+          }
+        />
       </div>
 
-      {/* Petite fleur */}
-      <div className="absolute left-24 top-20 h-8 w-8 rounded-full bg-[radial-gradient(circle,#fff6dc_10%,#e6c872_45%,#b7862d_100%)]" />
+      {status === "confirmed" ? (
+        <div className="mt-5 flex items-center gap-2 rounded-2xl border border-green-600/30 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+          <CheckCircle2 className="h-5 w-5" />
+          Votre présence est confirmée.
+        </div>
+      ) : status === "declined" ? (
+        <div className="mt-5 rounded-2xl border border-red-600/30 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          Vous avez indiqué que vous ne serez pas présent(e).
+        </div>
+      ) : (
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="rounded-2xl bg-[#9b6b1c] px-5 py-3 font-semibold text-white shadow-lg transition hover:bg-[#7a5316] disabled:opacity-60"
+          >
+            {loading ? "Confirmation..." : "Confirmer ma présence"}
+          </button>
 
-      {/* Perles */}
-      <div className="absolute left-24 top-5 h-3 w-3 rounded-full bg-[#f4e2b7] shadow-sm" />
-      <div className="absolute left-30 top-12 h-2.5 w-2.5 rounded-full bg-[#f4e2b7] shadow-sm" />
-      <div className="absolute left-20 top-26 h-3 w-3 rounded-full bg-[#f4e2b7] shadow-sm" />
+          <button
+            onClick={onDecline}
+            disabled={loading}
+            className="rounded-2xl border border-red-300 bg-red-50 px-5 py-3 font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
+          >
+            Je ne serai pas là
+          </button>
+        </div>
+      )}
     </div>
   );
 }
-function ProgramItem({
+
+
+
+/* function ProgramItem({
   time,
   title,
   location,
@@ -470,6 +570,39 @@ function ProgramItem({
       </div>
     </div>
   );
+} */
+
+function ProgramItem({
+  time,
+  title,
+  location,
+}: {
+  time: string;
+  title: string;
+  location: string;
+}) {
+  return (
+    <div className="rounded-3xl border border-[#ead39a] bg-white p-5 shadow-sm transition hover:border-[#d6a93d] hover:shadow-lg">
+      <div className="flex items-start gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#fff4d8] text-[#9b6b1c]">
+          <Clock className="h-5 w-5" />
+        </div>
+
+        <div>
+          <p className="text-sm font-bold text-[#9b6b1c]">{time}</p>
+
+          <h3 className="mt-1 text-lg font-bold text-[#2f2412]">
+            {title}
+          </h3>
+
+          <p className="mt-2 flex items-center gap-2 text-sm text-[#6f5a35]">
+            <MapPin className="h-4 w-4 text-[#9b6b1c]" />
+            {location}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function formatGuestName(invitation: Invitation) {
@@ -482,14 +615,17 @@ function formatGuestName(invitation: Invitation) {
   return `Mr/Mme ${guestName}`;
 }
 
-function Info({ label, value }: { label: string; value: string }) {
+/* function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-border bg-background/60 px-4 py-3">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="font-semibold text-foreground">{value}</p>
     </div>
   );
-}
+} */
+/* 
+
+
 
 function SectionTitle({
   eyebrow,
@@ -509,6 +645,40 @@ function SectionTitle({
         {title}
       </h2>
       <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+        {description}
+      </p>
+    </div>
+  );
+} */
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-[#ead39a] bg-[#fffaf0] px-4 py-3">
+      <p className="text-xs font-medium text-[#8a6a25]">{label}</p>
+      <p className="font-semibold text-[#2f2412]">{value}</p>
+    </div>
+  );
+}
+
+function SectionTitle({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#9b6b1c]">
+        {eyebrow}
+      </p>
+
+      <h2 className="mt-2 text-2xl font-bold text-[#2f2412] md:text-3xl">
+        {title}
+      </h2>
+
+      <p className="mt-2 max-w-xl text-sm leading-6 text-[#6f5a35]">
         {description}
       </p>
     </div>

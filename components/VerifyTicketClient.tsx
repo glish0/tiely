@@ -25,6 +25,8 @@ export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
     } = useVerifyTicket(token);
 
     const checkInMutation = useCheckInTicket(token);
+    console.log('VERIFY TICKET', ticket)
+    console.log('CHECK MUTATION', checkInMutation)
 
     if (isLoading) {
         return (
