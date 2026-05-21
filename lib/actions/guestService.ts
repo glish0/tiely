@@ -1,7 +1,7 @@
 import {
   CheckInResult,
   CreateGuestGroupInput,
-  CreateGuestInput,
+
   GuestGroupInterface,
   GuestGroupWithGuests,
   GuestWithWedding,
@@ -13,6 +13,21 @@ import {
   UserWeddingOption,
 } from "@/types";
 import { ensureFreshSession, supabase } from "../config/supabase";
+
+export type CreateGuestPersonInput = {
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone?: string;
+  is_child?: boolean;
+};
+
+export type CreateGuestInput = {
+  wedding_id: string;
+  group_type: "single" | "couple";
+  table_number: number | null;
+  guests: CreateGuestPersonInput[];
+};
 
 type GuestWedding = NonNullable<GuestWithWedding["weddings"]>;
 type RawGuestWithWedding = Omit<GuestWithWedding, "weddings"> & {
@@ -56,7 +71,7 @@ export const getUserWeddingOptions = async (): Promise<UserWeddingOption[]> => {
   if (error) {
     throw new Error(error.message);
   }
-  
+
 
   return data ?? [];
 };
@@ -108,53 +123,92 @@ export const getGuestGroupsForCurrentUser = async () => {
 
 export const createGuest = async (payload: CreateGuestInput) => {
   const session = await ensureFreshSession();
+  const userId = session.user.id;
+
+  const guestsToCreate = payload.guests;
+  const guestsToAdd = guestsToCreate.length;
+
+  const { data: activePlan, error: planError } = await supabase
+    .from("user_active_plan")
+    .select("max_guests")
+    .eq("user_id", userId)
+    .single();
+
+  if (planError || !activePlan) {
+    throw new Error("Aucun plan actif trouvé pour votre compte.");
+  }
+
+  const { count: currentGuests, error: countError } = await supabase
+    .from("guests")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId);
+
+  if (countError) {
+    throw new Error(countError.message);
+  }
+
+  if ((currentGuests || 0) + guestsToAdd > activePlan.max_guests) {
+    throw new Error(
+      `Limite atteinte. Votre plan autorise ${activePlan.max_guests} invité(s).`
+    );
+  }
 
   const { data: wedding, error: weddingError } = await supabase
     .from("weddings")
     .select("id")
     .eq("id", payload.wedding_id)
-    .eq("user_id", session.user.id)
+    .eq("user_id", userId)
     .single();
 
-  if (weddingError) {
-    throw new Error(weddingError.message);
-  }
-
-  if (!wedding) {
+  if (weddingError || !wedding) {
     throw new Error("Ce mariage est introuvable pour votre compte.");
   }
 
-  const qr_code_token = generateGuestQrToken();
+  const groupName = guestsToCreate
+    .map((guest) => `${guest.first_name} ${guest.last_name}`.trim())
+    .join(" & ");
 
-  const { data, error } = await supabase
-    .from("guests")
+  const { data: group, error: groupError } = await supabase
+    .from("guest_groups")
     .insert({
-      ...payload,
-      qr_code_token,
-      status: "invited",
+      wedding_id: payload.wedding_id,
+      user_id: userId,
+      name: groupName,
+      group_type: payload.group_type,
+      max_guests: payload.group_type === "couple" ? 2 : 1,
+      table_number: payload.table_number,
+      invitation_slug: crypto.randomUUID(),
+      qr_token: crypto.randomUUID(),
+      rsvp_status: "pending",
       checked_in_at: null,
     })
-    .select(
-      `
-        *,
-        weddings (
-          id,
-          groom,
-          bride,
-          event_date,
-          venue,
-          slug,
-          template_id
-        )
-      `
-    )
+    .select("*")
     .single();
 
-  if (error) {
-    throw new Error(error.message);
+  if (groupError || !group) {
+    throw new Error(groupError?.message || "Erreur création du groupe invité.");
   }
 
-  return data;
+  const guestsPayload = guestsToCreate.map((guest) => ({
+    wedding_id: payload.wedding_id,
+    group_id: group.id,
+    user_id: userId,
+    first_name: guest.first_name,
+    last_name: guest.last_name,
+    email: guest.email || null,
+    phone: guest.phone || null,
+    is_child: guest.is_child ?? false,
+  }));
+
+  const { error: guestsError } = await supabase
+    .from("guests")
+    .insert(guestsPayload);
+
+  if (guestsError) {
+    throw new Error(guestsError.message);
+  }
+
+  return group;
 };
 
 const buildGuestGroupName = (payload: ICreateGuestGroup) => {
