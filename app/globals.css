@@ -223,7 +223,11 @@
   }
 }
 
-
+@keyframes shine {
+  100% {
+    transform: translateX(100%);
+  }
+}
 
 .logo {
   height: 6em;

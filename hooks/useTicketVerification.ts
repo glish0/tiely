@@ -1,15 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export type TicketVerification = {
+export type TicketVerificationTicket = {
     id: string;
+    wedding_id: string;
     name: string;
-    max_guests: number;
     group_type: "single" | "couple";
+    max_guests: number;
     table_number: number | null;
     rsvp_status: "pending" | "confirmed" | "declined";
-    rsvp_confirmed_at: string | null;
     checked_in_at: string | null;
-    qr_token: string;
+    invitation_slug: string | null;
+};
+
+export type TicketVerification = {
+    valid: boolean;
+    ticket: TicketVerificationTicket | null;
 };
 
 async function verifyTicket(token: string): Promise<TicketVerification> {

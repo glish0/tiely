@@ -294,6 +294,7 @@ export const createGuestGroupWithGuests = async (
   }
 
   const invitationToken = generateGuestQrToken();
+  console.log('GENERATE QR CODE', invitationToken)
 
   const { data: group, error: groupError } = await supabase
     .from("guest_groups")
@@ -301,6 +302,7 @@ export const createGuestGroupWithGuests = async (
       wedding_id: payload.wedding_id,
       name: buildGuestGroupName({ ...payload, guests }),
       invitation_slug: invitationToken,
+      qr_token: invitationToken,
       group_type: payload.group_type,
       max_guests: expectedGuestCount,
       plus_one_allowed: false,
@@ -308,6 +310,9 @@ export const createGuestGroupWithGuests = async (
     })
     .select()
     .single();
+
+  console.log('GROUP DATA', group)
+
 
   if (groupError) {
     throw new Error(groupError.message);

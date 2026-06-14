@@ -9,9 +9,22 @@ import {
   Clock,
   Download,
   MapPin,
-  Sparkles,
+
   Ticket,
 } from "lucide-react";
+
+import Image from "next/image";
+import { Heart, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+
+function ShinyText({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="relative inline-block overflow-hidden">
+      <span className="relative z-10">{children}</span>
+      <span className="absolute inset-0 -translate-x-full animate-[shine_2.8s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+    </span>
+  );
+}
 
 type Invitation = {
   id: string;
@@ -57,7 +70,9 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
       }
     }; */
 
-  const respondPresence = async (nextStatus: "confirmed" | "declined") => {
+  const respondPresence = async (
+    nextStatus: "confirmed" | "declined" | "pending"
+  ) => {
     try {
       setLoading(true);
 
@@ -91,6 +106,11 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
   const declinePresence = () => {
     respondPresence("declined");
   };
+
+  const resetPresence = () => {
+    respondPresence("pending");
+  };
+
   const downloadTicket = async () => {
     if (!ticketRef.current) return;
 
@@ -126,6 +146,7 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
     link.click();
   };
 
+
   function formatFileName(name: string) {
     return name
       .trim()
@@ -135,9 +156,10 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
   }
 
   return (
-    <main className="min-h-screen bg-invitation-light px-4 py-8 text-[#2f2412]">
-      <section className="mx-auto max-w-5xl overflow-hidden rounded-4xl border border-[#ead39a] bg-white shadow-2xl">
-        <HeroSection />
+    <main className="min-h-screen bg-invitation-light  pb-8 text-[#2f2412]">
+      <HeroSection />
+      <section className="mx-auto max-w-5xl overflow-hidden px-4 rounded-xl border border-[#ead39a] bg-white shadow-xl">
+
 
         <div className="grid gap-6 p-5 md:p-8 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="space-y-4">
@@ -174,6 +196,7 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
             loading={loading}
             onConfirm={confirmPresence}
             onDecline={declinePresence}
+            onReset={resetPresence}
           />
         </div>
 
@@ -257,36 +280,66 @@ export function InvitationClient({ invitation }: { invitation: Invitation }) {
   );
 } */
 
-function HeroSection() {
-  return (
-    <div className="relative overflow-hidden border-b border-[#ead39a] bg-[#fffaf0] px-6 py-12 text-center md:px-10 md:py-16">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(214,169,61,0.22),transparent_45%)]" />
-      <div className="absolute -left-20 top-10 h-48 w-48 rounded-full bg-[#d6a93d]/15 blur-3xl" />
-      <div className="absolute -right-20 bottom-0 h-48 w-48 rounded-full bg-[#d6a93d]/15 blur-3xl" />
 
-      <div className="relative z-10 mx-auto max-w-3xl">
-        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#b8860b] text-white shadow-lg">
-          <Sparkles className="h-7 w-7" />
+
+
+
+export function HeroSection() {
+  return (
+    <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
+      <Image
+        src="/ghislaine_et_sosthene.jpeg"
+        alt="Ghislaine et Sosthène"
+        fill
+        priority
+        className="object-cover object-center"
+      />
+
+      <div className="absolute inset-0 bg-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/45" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_25%,rgba(0,0,0,0.35)_100%)]" />
+
+      <div className="absolute left-6 top-6 h-24 w-24 rounded-full bg-[#d6a93d]/25 blur-3xl md:h-48 md:w-48" />
+      <div className="absolute bottom-10 right-6 h-28 w-28 rounded-full bg-[#f6d77b]/25 blur-3xl md:h-56 md:w-56" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 35, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10 mx-2 w-full max-w-3xl rounded border border-white/25 bg-white/10 px-3 py-4 text-center text-white shadow-xl backdrop-blur-md md:px-6 md:py-6"
+      >
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-white/20 shadow backdrop-blur">
+          <Sparkles className="h-4 w-4 text-[#f6d77b]" />
         </div>
 
-        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-[#8a6a25]">
+        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-[#f6d77b]">
           Invitation de mariage
         </p>
 
-        <h1 className="mt-5 font-serif text-5xl font-bold italic leading-tight text-[#9b6b1c] md:text-7xl">
-          Ghislaine & Sosthène
+        <h1 className="mt-5 font-serif text-xl font-bold italic leading-tight text-white drop-shadow-lg md:text-3xl">
+          <ShinyText>Ghislaine</ShinyText>
+          <span className="mx-3 text-[#f6d77b]">&</span>
+          <ShinyText>Sosthène</ShinyText>
         </h1>
 
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#4b3820] md:text-lg">
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-white/95 drop-shadow md:text-base">
           Ont le plaisir de vous faire part de leur union civile et religieuse.
+          Votre présence rendra cette journée encore plus belle et inoubliable.
         </p>
 
-        <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-[#d8b56a] bg-white px-5 py-3 text-sm font-semibold text-[#7a5a1f] shadow-sm">
-          <CalendarDays className="h-5 w-5" />
-          Samedi 8 Août
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="inline-flex items-center gap-3 rounded-full border border-white/30 bg-white/20 px-5 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur">
+            <CalendarDays className="h-5 w-5 text-[#f6d77b]" />
+            Samedi 8 Août - Bertoua
+          </div>
+
+          <div className="inline-flex items-center gap-3 rounded-full border border-white/30 bg-white/20 px-5 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur">
+            <Heart className="h-5 w-5 fill-[#f6d77b] text-[#f6d77b]" />
+            Célébrons l’amour
+          </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </section>
   );
 }
 
@@ -472,12 +525,14 @@ function GuestCard({
   loading,
   onConfirm,
   onDecline,
+  onReset
 }: {
   invitation: Invitation;
   status: Invitation["rsvp_status"];
   loading: boolean;
   onConfirm: () => void;
   onDecline: () => void;
+  onReset: () => void;
 }) {
   return (
     <div className="rounded-3xl border border-[#ead39a] bg-white p-5 shadow-sm md:p-6">
@@ -508,13 +563,33 @@ function GuestCard({
       </div>
 
       {status === "confirmed" ? (
-        <div className="mt-5 flex items-center gap-2 rounded-2xl border border-green-600/30 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
-          <CheckCircle2 className="h-5 w-5" />
-          Votre présence est confirmée.
+        <div className="mt-5 space-y-3">
+          <div className="flex items-center gap-2 rounded-2xl border border-green-600/30 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+            <CheckCircle2 className="h-5 w-5" />
+            Votre présence est confirmée.
+          </div>
+
+          <button
+            onClick={onReset}
+            disabled={loading}
+            className="w-full rounded-2xl border border-[#d8b56a] bg-[#fffaf0] px-5 py-3 font-semibold text-[#7a5316] transition hover:bg-[#fff3d6] disabled:opacity-60"
+          >
+            {loading ? "Annulation..." : "Annuler ma confirmation"}
+          </button>
         </div>
       ) : status === "declined" ? (
-        <div className="mt-5 rounded-2xl border border-red-600/30 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-          Vous avez indiqué que vous ne serez pas présent(e).
+        <div className="mt-5 space-y-3">
+          <div className="rounded-2xl border border-red-600/30 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            Vous avez indiqué que vous ne serez pas présent(e).
+          </div>
+
+          <button
+            onClick={onReset}
+            disabled={loading}
+            className="w-full rounded-2xl border border-[#d8b56a] bg-[#fffaf0] px-5 py-3 font-semibold text-[#7a5316] transition hover:bg-[#fff3d6] disabled:opacity-60"
+          >
+            {loading ? "Modification..." : "Modifier ma réponse"}
+          </button>
         </div>
       ) : (
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -531,7 +606,7 @@ function GuestCard({
             disabled={loading}
             className="rounded-2xl border border-red-300 bg-red-50 px-5 py-3 font-semibold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
           >
-            Je ne serai pas là
+            Je serai indisponible
           </button>
         </div>
       )}

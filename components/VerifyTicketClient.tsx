@@ -19,14 +19,14 @@ type VerifyTicketClientProps = {
 
 export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
     const {
-        data: ticket,
+        data: verification,
         isLoading,
         isError,
     } = useVerifyTicket(token);
 
-    const checkInMutation = useCheckInTicket(token);
-    console.log('VERIFY TICKET', ticket)
-    console.log('CHECK MUTATION', checkInMutation)
+    const { mutate: checkInMutation, isPending, isError: isErrorMutation } = useCheckInTicket(token);
+
+
 
     if (isLoading) {
         return (
@@ -39,7 +39,7 @@ export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
         );
     }
 
-    if (isError || !ticket) {
+    if (isError || !verification || !verification.valid || !verification.ticket) {
         return (
             <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-white">
                 <div className="max-w-md rounded-3xl border border-red-500/30 bg-red-500/10 p-8 text-center">
@@ -52,6 +52,11 @@ export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
             </main>
         );
     }
+
+    const ticket = verification.ticket;
+
+
+
 
     const alreadyCheckedIn = Boolean(ticket.checked_in_at);
     const isConfirmed = ticket.rsvp_status === "confirmed";
@@ -140,11 +145,11 @@ export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
 
                 {!alreadyCheckedIn && (
                     <button
-                        onClick={() => checkInMutation.mutate(ticket.id)}
-                        disabled={checkInMutation.isPending}
+                        onClick={() => checkInMutation(ticket.id)}
+                        disabled={isPending}
                         className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-green-500 px-5 py-4 font-bold text-white transition hover:bg-green-600 disabled:opacity-60"
                     >
-                        {checkInMutation.isPending ? (
+                        {isPending ? (
                             <Loader2 className="h-5 w-5 animate-spin" />
                         ) : (
                             <UserCheck className="h-5 w-5" />
@@ -153,9 +158,9 @@ export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
                     </button>
                 )}
 
-                {checkInMutation.isError && (
+                {isError && (
                     <p className="mt-4 rounded-2xl bg-red-500/10 px-4 py-3 text-sm text-red-100">
-                        {checkInMutation.error.message}
+                        {isErrorMutation}
                     </p>
                 )}
             </section>

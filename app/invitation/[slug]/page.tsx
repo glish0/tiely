@@ -75,6 +75,8 @@ export default async function InvitationPage({ params }: RouteContext) {
     notFound();
   }
 
+  console.log('INVITATION LINK', invitation)
+
   return <InvitationClient invitation={invitation} />;
 }
 
