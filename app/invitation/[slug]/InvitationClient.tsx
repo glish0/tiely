@@ -436,7 +436,7 @@ function TicketCard({
       }}
     >
       <img
-        src="/sos_v4.png"
+        src="/sos_6.png"
         alt="Invitation Ghislaine et Sosthène"
         className="absolute inset-0 h-full w-full object-cover"
       />
