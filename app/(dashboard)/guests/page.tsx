@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { motion } from "framer-motion";
-import { Copy, ExternalLink, Plus, Search, Send, Upload } from "lucide-react";
+import { Copy, Edit, ExternalLink, Plus, Search, Send, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -91,6 +91,8 @@ export default function GuestsPage() {
 
 
   const { data: guestGroups = [], isLoading: guestsLoading } = useGetGuestsGroupForCurrentUser()
+
+
 
   const filtered = useMemo(() => {
     return guestGroups.filter((group) => {
@@ -248,6 +250,7 @@ export default function GuestsPage() {
             <Upload className="h-4 w-4" /> {t("importCsv")}
           </Button>
           <GuestFormModal
+            mode="create"
             trigger={
               <Button variant="outline" size="sm" className="gap-2">
                 <Plus className="h-4 w-4" />
@@ -321,6 +324,9 @@ export default function GuestsPage() {
                 <th className="text-right text-xs font-medium text-muted-foreground px-5 py-3">
                   Lien
                 </th>
+                <th className="text-right text-xs font-medium text-muted-foreground px-5 py-3">
+                  <Edit className="h-4 w-4" />
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -355,7 +361,17 @@ export default function GuestsPage() {
                         {group.name}
                       </td>
                       <td className="px-5 py-3.5 text-sm text-muted-foreground">
-                        {group.first_name} {group.last_name}
+                        {group.guests?.length ? (
+                          <div className="space-y-1">
+                            {group.guests.map((guest) => (
+                              <div key={guest.id}>
+                                {guest.first_name} {guest.last_name}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          "-"
+                        )}
                       </td>
                       <td className="px-5 py-3.5">
                         <Badge
@@ -429,6 +445,24 @@ export default function GuestsPage() {
                               </span>
                             </Button>
                           )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex justify-end">
+                          <GuestFormModal
+                            mode="edit"
+                            guestGroup={group}
+                            trigger={
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-sm"
+                              >
+                                <Edit className="h-4 w-4" />
+                                <span className="sr-only">Modifier l&apos;invité</span>
+                              </Button>
+                            }
+                          />
                         </div>
                       </td>
                     </motion.tr>

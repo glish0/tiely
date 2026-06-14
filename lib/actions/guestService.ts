@@ -104,7 +104,7 @@ export const getGuestsForCurrentUser = async (): Promise<GuestWithWedding[]> => 
   }));
 };
 
-export const getGuestGroupsForCurrentUser = async () => {
+/* export const getGuestGroupsForCurrentUser = async () => {
   const weddings = await getUserWeddingOptions();
   const weddingIds = weddings.map((w) => w.id);
 
@@ -113,12 +113,41 @@ export const getGuestGroupsForCurrentUser = async () => {
   const { data, error } = await supabase
     .from("guest_groups")
     .select("*")
-    /* .in("wedding_id", weddingIds) */
+    /* .in("wedding_id", weddingIds) 
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
 
   return data ?? [];
+}; */
+
+export const getGuestGroupsForCurrentUser = async (): Promise<GuestGroupWithGuests[]> => {
+  const weddings = await getUserWeddingOptions();
+  const weddingIds = weddings.map((w) => w.id);
+
+  if (!weddingIds.length) return [];
+
+  const { data, error } = await supabase
+    .from("guest_groups")
+    .select(`
+      *,
+      weddings (
+        id,
+        groom,
+        bride
+      ),
+      guests (*)
+    `)
+    .in("wedding_id", weddingIds)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+
+  return (data ?? []).map((group) => ({
+    ...group,
+    guests: group.guests ?? [],
+    rsvp_response: null,
+  })) as GuestGroupWithGuests[];
 };
 
 export const createGuest = async (payload: CreateGuestInput) => {
@@ -312,6 +341,147 @@ export const createGuestGroupWithGuests = async (
     guests: (insertedGuests ?? []) as GuestWithWedding[],
     rsvp_response: null,
   } as GuestGroupWithGuests;
+};
+
+// mise a jour du billet
+
+export const updateGuestGroupWithGuests = async (
+  groupId: string,
+  payload: ICreateGuestGroup
+): Promise<GuestGroupWithGuests> => {
+  const session = await ensureFreshSession();
+
+  const expectedGuestCount = payload.group_type === "couple" ? 2 : 1;
+
+  const guests = payload.guests.slice(0, expectedGuestCount).map((guest) => ({
+    ...guest,
+    first_name: guest.first_name.trim(),
+    last_name: guest.last_name.trim(),
+    email: guest.email?.trim() ?? "",
+    phone: guest.phone?.trim() ?? "",
+  }));
+
+  if (guests.length !== expectedGuestCount) {
+    throw new Error(
+      payload.group_type === "couple"
+        ? "Un couple doit contenir deux invités."
+        : "Un invité simple doit contenir une personne."
+    );
+  }
+
+  if (guests.some((guest) => !guest.first_name || !guest.last_name)) {
+    throw new Error("Le prénom et le nom sont obligatoires pour chaque invité.");
+  }
+
+  const { data: wedding, error: weddingError } = await supabase
+    .from("weddings")
+    .select("id")
+    .eq("id", payload.wedding_id)
+    .eq("user_id", session.user.id)
+    .single();
+
+  if (weddingError) {
+    throw new Error(weddingError.message);
+  }
+
+  if (!wedding) {
+    throw new Error("Ce mariage est introuvable pour votre compte.");
+  }
+
+  const { data: existingGroup, error: existingGroupError } = await supabase
+    .from("guest_groups")
+    .select("*")
+    .eq("id", groupId)
+    .eq("wedding_id", payload.wedding_id)
+    .single();
+
+  if (existingGroupError) {
+    throw new Error(existingGroupError.message);
+  }
+
+  if (!existingGroup) {
+    throw new Error("Ce groupe d'invités est introuvable.");
+  }
+
+  const invitationToken =
+    existingGroup.invitation_slug || generateGuestQrToken();
+
+  const { data: updatedGroup, error: groupError } = await supabase
+    .from("guest_groups")
+    .update({
+      name: buildGuestGroupName({ ...payload, guests }),
+      invitation_slug: invitationToken,
+      group_type: payload.group_type,
+      max_guests: expectedGuestCount,
+      plus_one_allowed: false,
+      table_number: payload.table_number ?? null,
+    })
+    .eq("id", groupId)
+    .eq("wedding_id", payload.wedding_id)
+    .select()
+    .single();
+
+  if (groupError) {
+    throw new Error(groupError.message);
+  }
+
+  const { error: deleteGuestsError } = await supabase
+    .from("guests")
+    .delete()
+    .eq("guest_group_id", groupId)
+    .eq("wedding_id", payload.wedding_id);
+
+  if (deleteGuestsError) {
+    throw new Error(deleteGuestsError.message);
+  }
+
+  const { data: insertedGuests, error: guestsError } = await supabase
+    .from("guests")
+    .insert(
+      guests.map((guest) => ({
+        wedding_id: payload.wedding_id,
+        guest_group_id: groupId,
+        first_name: guest.first_name,
+        last_name: guest.last_name,
+        email: guest.email,
+        phone: guest.phone,
+        is_child: guest.is_child,
+        qr_code_token: invitationToken,
+        status: "invited",
+        checked_in_at: null,
+      }))
+    )
+    .select();
+
+  if (guestsError) {
+    throw new Error(guestsError.message);
+  }
+
+  return {
+    ...updatedGroup,
+    guests: (insertedGuests ?? []) as GuestWithWedding[],
+    rsvp_response: null,
+  } as GuestGroupWithGuests;
+};
+
+export const getGuestGroupsWithGuests = async (
+  weddingId: string
+): Promise<GuestGroupWithGuests[]> => {
+  const { data, error } = await supabase
+    .from("guest_groups")
+    .select(`
+      *,
+      guests (*),
+      rsvp_response:rsvp_responses (*)
+    `)
+    .eq("wedding_id", weddingId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []) as GuestGroupWithGuests[];
 };
 
 export const getInvitationBySlug = async (

@@ -1,10 +1,12 @@
 import {
   createGuestGroupWithGuests,
   getGuestGroupsForCurrentUser,
+  getGuestGroupsWithGuests,
   getGuestsForCurrentUser,
   getUserWeddingOptions,
   markAllInvitationsAsSent,
   markInvitationAsSent,
+  updateGuestGroupWithGuests,
 } from "@/lib/actions/guestService";
 import { ICreateGuestGroup, InvitationChannel } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -37,6 +39,42 @@ const useCreateGuest = () => {
   });
 };
 
+// hook de mise a jour de la creation d'un Guest
+
+const useUpdateGuest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      groupId,
+      data,
+    }: {
+      groupId: string;
+      data: ICreateGuestGroup;
+    }) => {
+      const promise = updateGuestGroupWithGuests(groupId, data);
+
+      toast.promise(promise, {
+        loading: "Modification de l'invité...",
+        success: "Invité modifié avec succès 🎉",
+        error: (err) => err.message || "Une erreur est survenue",
+      });
+
+      return promise;
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["guest-groups"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["guests"],
+      });
+    },
+  });
+};
+
 const useGetGuestsForCurrentUser = () => {
 
   return useQuery({
@@ -49,7 +87,7 @@ const useGetGuestsGroupForCurrentUser = () => {
 
   return useQuery({
     queryKey: ["guest-groups"],
-    queryFn:  getGuestGroupsForCurrentUser,
+    queryFn: getGuestGroupsForCurrentUser,
   });
 };
 
@@ -92,12 +130,22 @@ const useMarkAllInvitationsSent = () => {
   });
 };
 
+const useGuestGroupsWithGuests = (weddingId?: string) => {
+  return useQuery({
+    queryKey: ["guest-groups", weddingId],
+    queryFn: () => getGuestGroupsWithGuests(weddingId!),
+    enabled: !!weddingId,
+  });
+};
+
 
 export {
- useCreateGuest,
- useGetUserWedding,
- useGetGuestsGroupForCurrentUser,
- useGetGuestsForCurrentUser,
- useMarkAllInvitationsSent,
- useMarkInvitationSent
+  useCreateGuest,
+  useGetUserWedding,
+  useGetGuestsGroupForCurrentUser,
+  useGetGuestsForCurrentUser,
+  useMarkAllInvitationsSent,
+  useMarkInvitationSent,
+  useUpdateGuest,
+  useGuestGroupsWithGuests
 }

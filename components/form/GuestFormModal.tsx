@@ -35,7 +35,8 @@ import {
   SelectValue,
 } from "../ui/select";
 import { useLanguage } from "@/lib/contexts/LanguageContexte";
-import { useCreateGuest } from "@/hooks/useGuest";
+import { useCreateGuest, useUpdateGuest } from "@/hooks/useGuest";
+import { GuestGroupWithGuests, ICreateGuestGroup } from "@/types";
 
 
 const guestSchema = z.object({
@@ -74,16 +75,23 @@ const schema = z
 type FormInput = z.input<typeof schema>;
 type FormValues = z.output<typeof schema>;
 
+type GuestFormModalProps = {
+  trigger: React.ReactNode;
+  mode: "create" | "edit";
+  guestGroup?: GuestGroupWithGuests;
+};
 
 
 
-export function GuestFormModal({ trigger }: { trigger: React.ReactNode }) {
+
+export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProps) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { data: weddings = [] } = useWeddingOptions();
   const { mutate: createGuestMutation } = useCreateGuest();
+  const { mutate: updateGuestMutation } = useUpdateGuest();
   const selectedWeddingId = weddings[0]?.id || "";
 
   const emptyGuest = {
@@ -97,18 +105,49 @@ export function GuestFormModal({ trigger }: { trigger: React.ReactNode }) {
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      wedding_id: "",
-      group_type: "single",
-      table_number: null,
-      guests: [
-        {
-          ...emptyGuest,
-        },
-      ],
+      wedding_id: guestGroup?.wedding_id ?? "",
+      group_type: guestGroup?.group_type ?? "single",
+      table_number: guestGroup?.table_number ?? null,
+      guests:
+        guestGroup?.guests?.length
+          ? guestGroup.guests.map((guest) => ({
+            first_name: guest.first_name ?? "",
+            last_name: guest.last_name ?? "",
+            email: guest.email ?? "",
+            phone: guest.phone ?? "",
+            is_child: guest.is_child ?? false,
+          }))
+          : [
+            {
+              ...emptyGuest,
+            },
+          ],
     },
   });
 
   const groupType = form.watch("group_type");
+
+  console.log('guest Group', guestGroup)
+
+  useEffect(() => {
+    if (mode === "edit" && guestGroup) {
+      form.reset({
+        wedding_id: guestGroup.wedding_id,
+        group_type: guestGroup.group_type,
+        table_number: guestGroup.table_number ?? null,
+        guests:
+          guestGroup.guests?.length > 0
+            ? guestGroup.guests.map((guest) => ({
+              first_name: guest.first_name ?? "",
+              last_name: guest.last_name ?? "",
+              email: guest.email ?? "",
+              phone: guest.phone ?? "",
+              is_child: guest.is_child ?? false,
+            }))
+            : [{ ...emptyGuest }],
+      });
+    }
+  }, [mode, guestGroup, form]);
 
   useEffect(() => {
     const currentGuests = form.getValues("guests");
@@ -123,10 +162,7 @@ export function GuestFormModal({ trigger }: { trigger: React.ReactNode }) {
     if (groupType === "couple") {
       form.setValue(
         "guests",
-        [
-          currentGuests[0] ?? emptyGuest,
-          currentGuests[1] ?? emptyGuest,
-        ],
+        [currentGuests[0] ?? emptyGuest, currentGuests[1] ?? emptyGuest],
         {
           shouldValidate: true,
           shouldDirty: true,
@@ -136,12 +172,16 @@ export function GuestFormModal({ trigger }: { trigger: React.ReactNode }) {
   }, [groupType, form]);
 
   useEffect(() => {
-    if (weddings.length > 0 && !form.getValues("wedding_id")) {
+    if (
+      mode === "create" &&
+      weddings.length > 0 &&
+      !form.getValues("wedding_id")
+    ) {
       form.setValue("wedding_id", weddings[0].id, {
         shouldValidate: true,
       });
     }
-  }, [weddings, form]);
+  }, [weddings, form, mode]);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -149,12 +189,25 @@ export function GuestFormModal({ trigger }: { trigger: React.ReactNode }) {
 
       const expectedGuestCount = values.group_type === "couple" ? 2 : 1;
 
-      await createGuestMutation({
+      const payload: ICreateGuestGroup = {
         wedding_id: values.wedding_id,
         table_number: values.table_number,
         group_type: values.group_type,
         guests: values.guests.slice(0, expectedGuestCount),
-      });
+      };
+
+      if (mode === "edit") {
+        if (!guestGroup?.id) {
+          throw new Error("Impossible de modifier : groupe invité introuvable.");
+        }
+
+        await updateGuestMutation({
+          groupId: guestGroup.id,
+          data: payload,
+        });
+      } else {
+        await createGuestMutation(payload);
+      }
 
       setOpen(false);
     } catch (err) {
@@ -255,9 +308,10 @@ export function GuestFormModal({ trigger }: { trigger: React.ReactNode }) {
 
       <DialogContent className="sm:max-w-125">
         <DialogHeader>
-          <DialogTitle>{t("addGuest")}</DialogTitle>
+          <DialogTitle>
+            {mode === "edit" ? t("editGuest") : t("addGuest")}
+          </DialogTitle>
         </DialogHeader>
-
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -341,7 +395,13 @@ export function GuestFormModal({ trigger }: { trigger: React.ReactNode }) {
               className="w-full"
               disabled={loading}
             >
-              {loading ? "Ajout..." : t("addGuest")}
+              {loading
+                ? mode === "edit"
+                  ? "Modification..."
+                  : "Ajout..."
+                : mode === "edit"
+                  ? t("editGuest")
+                  : t("addGuest")}
             </Button>
           </form>
         </Form>

@@ -41,7 +41,7 @@ export type CreateWeddingInput = {
   template_id: string;
 };
 
-export type GuestGroupType = "single" | "couple" | "family";
+export type GuestGroupType = "single" | "couple";
 export type InvitationStatus = "draft" | "sending" | "sent" | "failed";
 export type InvitationChannel = "manual" | "whatsapp" | "email";
 
