@@ -1,5 +1,6 @@
 import {
   createGuestGroupWithGuests,
+  deleteGuestGroupWithGuests,
   getGuestGroupsForCurrentUser,
   getGuestGroupsWithGuests,
   getGuestsForCurrentUser,
@@ -139,6 +140,36 @@ const useGuestGroupsWithGuests = (weddingId?: string) => {
 };
 
 
+const useDeleteGuest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (groupId: string) => {
+      const promise = deleteGuestGroupWithGuests(groupId);
+
+      toast.promise(promise, {
+        loading: "Suppression de l'invité...",
+        success: "Invité supprimé avec succès",
+        error: (err) => err.message || "Une erreur est survenue",
+      });
+
+      return promise;
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["guest-groups"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["guests"],
+      });
+    },
+  });
+};
+
+
+
 export {
   useCreateGuest,
   useGetUserWedding,
@@ -147,5 +178,6 @@ export {
   useMarkAllInvitationsSent,
   useMarkInvitationSent,
   useUpdateGuest,
-  useGuestGroupsWithGuests
+  useGuestGroupsWithGuests,
+  useDeleteGuest
 }

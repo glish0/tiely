@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { motion } from "framer-motion";
-import { Copy, Edit, ExternalLink, Plus, Search, Send, Upload } from "lucide-react";
+import { Copy, Edit, ExternalLink, Plus, Search, Send, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ import {
 import { useLanguage } from "@/lib/contexts/LanguageContexte";
 import {
 
+  useDeleteGuest,
   useGetGuestsGroupForCurrentUser,
   useGetUserWedding,
   useMarkAllInvitationsSent,
@@ -91,8 +92,18 @@ export default function GuestsPage() {
 
 
   const { data: guestGroups = [], isLoading: guestsLoading } = useGetGuestsGroupForCurrentUser()
+  const { mutateAsync: deleteGuestMutation, isPending: isDeleting } =
+    useDeleteGuest();
 
+  const handleDeleteGuest = async (groupId: string) => {
+    const confirmed = window.confirm(
+      "Voulez-vous vraiment supprimer cet invité ? Cette action est irréversible."
+    );
 
+    if (!confirmed) return;
+
+    await deleteGuestMutation(groupId);
+  };
 
   const filtered = useMemo(() => {
     return guestGroups.filter((group) => {
@@ -327,6 +338,9 @@ export default function GuestsPage() {
                 <th className="text-right text-xs font-medium text-muted-foreground px-5 py-3">
                   <Edit className="h-4 w-4" />
                 </th>
+                <th className="text-right text-xs font-medium text-muted-foreground px-5 py-3">
+                  Supprimer
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -463,6 +477,21 @@ export default function GuestsPage() {
                               </Button>
                             }
                           />
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex justify-end">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            disabled={isDeleting}
+                            onClick={() => handleDeleteGuest(group.id)}
+                            className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Supprimer l&apos;invité</span>
+                          </Button>
                         </div>
                       </td>
                     </motion.tr>

@@ -829,3 +829,57 @@ export const checkInGuestByQrToken = async (
     guest: checkedInGuest,
   };
 };
+
+
+export const deleteGuestGroupWithGuests = async (
+  groupId: string
+): Promise<void> => {
+  const session = await ensureFreshSession();
+
+  const { data: group, error: groupError } = await supabase
+    .from("guest_groups")
+    .select(`
+      id,
+      wedding_id,
+      weddings (
+        id,
+        user_id
+      )
+    `)
+    .eq("id", groupId)
+    .single();
+
+  if (groupError) {
+    throw new Error(groupError.message);
+  }
+
+  if (!group) {
+    throw new Error("Groupe invité introuvable.");
+  }
+
+  const wedding = Array.isArray(group.weddings)
+    ? group.weddings[0]
+    : group.weddings;
+
+  if (!wedding || wedding.user_id !== session.user.id) {
+    throw new Error("Vous n'êtes pas autorisé à supprimer cet invité.");
+  }
+
+  const { error: guestsError } = await supabase
+    .from("guests")
+    .delete()
+    .eq("guest_group_id", groupId);
+
+  if (guestsError) {
+    throw new Error(guestsError.message);
+  }
+
+  const { error: deleteGroupError } = await supabase
+    .from("guest_groups")
+    .delete()
+    .eq("id", groupId);
+
+  if (deleteGroupError) {
+    throw new Error(deleteGroupError.message);
+  }
+};
