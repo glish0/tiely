@@ -297,7 +297,7 @@ export function HeroSection() {
 
       <div className="absolute inset-0 bg-black/20" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/45" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_25%,rgba(0,0,0,0.35)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_55%,rgba(0,0,0,0.35)_100%)]" />
 
       <div className="absolute left-6 top-6 h-24 w-24 rounded-full bg-[#d6a93d]/25 blur-3xl md:h-48 md:w-48" />
       <div className="absolute bottom-10 right-6 h-28 w-28 rounded-full bg-[#f6d77b]/25 blur-3xl md:h-56 md:w-56" />
@@ -306,7 +306,7 @@ export function HeroSection() {
         initial={{ opacity: 0, y: 35, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative z-10 mx-2 w-full max-w-3xl rounded border border-white/25 bg-white/10 px-3 py-4 text-center text-white shadow-xl backdrop-blur-md md:px-6 md:py-6"
+        className="relative z-10 mx-2 w-full max-w-3xl rounded border border-white/10 bg-white/5 px-3 py-4 text-center text-white shadow backdrop-blur-2xs md:px-6 md:py-6"
       >
         <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-white/20 shadow backdrop-blur">
           <Sparkles className="h-4 w-4 text-[#f6d77b]" />
