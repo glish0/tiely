@@ -17,7 +17,7 @@ const plans = [
     desc: "Le plus populaire",
     features: [
       "Jusqu'à 150 invitations",
-      "Tous les modèles",
+      "Jusqu'à 5 modèles",
       "Check-in en temps réel",
       "Analytiques complètes",
       "Partage WhatsApp illimité",
@@ -67,8 +67,8 @@ const PricingSection = () => (
             viewport={{ once: true }}
             transition={{ delay: i * 0.1, duration: 0.5 }}
             className={`rounded-2xl p-8 flex flex-col ${p.highlighted
-                ? "glass-gold glow-gold ring-1 ring-primary/30 scale-[1.02]"
-                : "glass"
+              ? "glass-gold glow-gold ring-1 ring-primary/30 scale-[1.02]"
+              : "glass"
               }`}
           >
             {p.highlighted && (
@@ -92,8 +92,8 @@ const PricingSection = () => (
             <a
               href="#cta"
               className={`mt-8 rounded-full py-3 text-center text-sm font-semibold transition-transform hover:scale-105 ${p.highlighted
-                  ? "bg-gradient-gold text-primary-foreground shadow-gold"
-                  : "glass-gold text-primary hover:bg-primary/10"
+                ? "bg-gradient-gold text-primary-foreground shadow-gold"
+                : "glass-gold text-primary hover:bg-primary/10"
                 }`}
             >
               Commencer

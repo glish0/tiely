@@ -10,6 +10,11 @@ const testimonials = [
     text: "Tiely a transformé notre mariage ! Nos invités étaient impressionnés par les invitations digitales. Le check-in à l'entrée était fluide et professionnel.",
   },
   {
+    name: "Ghislaine & Sosthene",
+    location: "Bertoua, Cameroun",
+    text: "Nous avions besoin d'un outil qui fasse vraiment la différence. Tiely nous a offert une expérience moderne, élégante et parfaitement organisée. Nos invités ont adoré les invitations digitales et le check-in à l'entrée a été simple, rapide et professionnel.",
+  },
+  {
     name: "Aminata & Ibrahim",
     location: "Yaoundé, Cameroun",
     text: "Simple, élégant et efficace. On a pu gérer 200 invités sans stress. Le partage WhatsApp a été un vrai game-changer pour nous.",
@@ -42,7 +47,7 @@ const TestimonialsSection = () => (
         </h2>
       </motion.div>
 
-      <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <div className="grid md:grid-cols-4 gap-4 max-w-5xl mx-auto">
         {testimonials.map((t, i) => (
           <motion.div
             key={t.name}
@@ -50,7 +55,7 @@ const TestimonialsSection = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1, duration: 0.5 }}
-            className="glass-gold rounded-2xl p-8"
+            className="glass-gold rounded-2xl p-3"
           >
             <div className="flex gap-1 mb-4">
               {[...Array(5)].map((_, j) => (

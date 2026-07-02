@@ -429,14 +429,14 @@ function TicketCard({
     <div
       id="ticket-to-download"
       ref={refElement}
-      className="relative mx-auto aspect-[527/746] w-full max-w-md overflow-hidden rounded-[1.5rem] border bg-white text-black"
+      className="relative mx-auto aspect-527/746 w-full max-w-md overflow-hidden rounded-[1.5rem] border bg-white text-black"
       style={{
         borderColor: "#d8b56a",
         boxShadow: "0 25px 60px rgba(0,0,0,0.25)",
       }}
     >
       <img
-        src="/sos_6.png"
+        src="/sos_7.png"
         alt="Invitation Ghislaine et Sosthène"
         className="absolute inset-0 h-full w-full object-cover"
       />
@@ -448,7 +448,7 @@ function TicketCard({
           bottom: "3%",
           left: 0,
           right: 0,
-          width: "34%",
+          width: "30%",
           marginLeft: "auto",
           marginRight: "auto",
         }}
@@ -457,8 +457,8 @@ function TicketCard({
           className="rounded bg-white"
           style={{
             border: "1px solid #c69a3b",
-            boxShadow: "0 8px 15px rgba(0,0,0,0.15)",
-            padding: "2px",
+            boxShadow: "0 8px 10px rgba(0,0,0,0.15)",
+            padding: "1px",
             textAlign: "center",
           }}
         >
