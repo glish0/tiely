@@ -155,7 +155,7 @@ export default async function Image({ params }: Props) {
     );
 }
 
-function getUppercasePart(name: string) {
+/* function getUppercasePart(name: string) {
     const uppercaseWords = name
         .trim()
         .split(/\s+/)
@@ -164,7 +164,7 @@ function getUppercasePart(name: string) {
         });
 
     return uppercaseWords.join(" ");
-}
+} */
 
 function formatGuestName(name: string, groupType: string) {
     const uppercasePart = name

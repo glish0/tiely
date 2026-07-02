@@ -13,7 +13,7 @@ const plans = [
   },
   {
     name: "Standard",
-    price: "15 000 FCFA",
+    price: "25 000 FCFA",
     desc: "Le plus populaire",
     features: [
       "Jusqu'à 150 invitations",
@@ -26,7 +26,7 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "25 000 FCFA",
+    price: "35 000 FCFA",
     desc: "Pour les grands événements",
     features: [
       "Invitations illimitées",
@@ -66,11 +66,10 @@ const PricingSection = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1, duration: 0.5 }}
-            className={`rounded-2xl p-8 flex flex-col ${
-              p.highlighted
+            className={`rounded-2xl p-8 flex flex-col ${p.highlighted
                 ? "glass-gold glow-gold ring-1 ring-primary/30 scale-[1.02]"
                 : "glass"
-            }`}
+              }`}
           >
             {p.highlighted && (
               <span className="bg-gradient-gold text-primary-foreground text-xs font-bold uppercase tracking-wider rounded-full px-3 py-1 self-start mb-4">
@@ -92,11 +91,10 @@ const PricingSection = () => (
             </ul>
             <a
               href="#cta"
-              className={`mt-8 rounded-full py-3 text-center text-sm font-semibold transition-transform hover:scale-105 ${
-                p.highlighted
+              className={`mt-8 rounded-full py-3 text-center text-sm font-semibold transition-transform hover:scale-105 ${p.highlighted
                   ? "bg-gradient-gold text-primary-foreground shadow-gold"
                   : "glass-gold text-primary hover:bg-primary/10"
-              }`}
+                }`}
             >
               Commencer
             </a>
