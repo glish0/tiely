@@ -75,7 +75,7 @@ export type GuestInput = {
 export type ICreateGuestGroup = {
   wedding_id: string;
   group_type: string;
-  table_number?: number | null;
+  table_number?: string | null;
   guests: GuestInput[];
 };
 
@@ -150,7 +150,7 @@ export type GuestGroup = {
 
   plus_one_allowed: boolean
 
-  table_number?: number | null
+  table_number?: string | null
 
   invitation_status?: InvitationStatus | null
 

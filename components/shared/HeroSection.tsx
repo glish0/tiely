@@ -20,7 +20,7 @@ const HeroSection = () => (
         <span className="inline-flex items-center gap-2 glass-gold rounded-full px-4 py-1.5 text-xs font-medium text-primary w-fit">
           ✨ Plateforme #1 d&apos;invitations digitales en Afrique
         </span>
-       
+
 
         <h1 className="font-serif text-4xl sm:text-5xl lg:text-5xl font-bold leading-tight">
           Créez des invitations de mariage{" "}
@@ -39,12 +39,7 @@ const HeroSection = () => (
           >
             Générer mes invitations
           </Link>
-          <a
-            href="#features"
-            className="glass-gold rounded-full px-8 py-3.5 text-sm font-semibold text-primary transition hover:bg-primary/10"
-          >
-            Essayer gratuitement
-          </a>
+
         </div>
 
         <div className="flex items-center gap-6 mt-4 text-sm text-muted-foreground">
@@ -74,7 +69,7 @@ const HeroSection = () => (
             alt="Tiely - Invitation digitale avec QR code"
             width={420}
             height={540}
-              style={{ height: "auto" }}
+            style={{ height: "auto" }}
             className="relative z-10 drop-shadow-2xl animate-float"
           />
         </div>

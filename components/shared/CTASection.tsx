@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const CTASection = () => (
   <section id="cta" className="py-28 relative overflow-hidden">
@@ -22,12 +23,12 @@ const CTASection = () => (
           Rejoignez des centaines de couples qui ont choisi Tiely pour créer des invitations inoubliables.
         </p>
         <div className="flex flex-wrap justify-center gap-4 mt-10">
-          <a
-            href="#"
+          <Link
+            href="/login"
             className="bg-gradient-gold rounded-full px-10 py-4 text-base font-semibold text-primary-foreground shadow-gold transition-transform hover:scale-105"
           >
             Générer mes invitations
-          </a>
+          </Link>
           <a
             href="#pricing"
             className="glass-gold rounded-full px-10 py-4 text-base font-semibold text-primary transition hover:bg-primary/10"

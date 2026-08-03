@@ -51,7 +51,7 @@ const schema = z
   .object({
     wedding_id: z.string().min(1, "Le mariage est obligatoire"),
     group_type: z.enum(["single", "couple"]),
-    table_number: z.number().nullable(),
+    table_number: z.string(),
     guests: z.array(guestSchema).min(1).max(2),
   })
   .superRefine((data, ctx) => {
@@ -107,7 +107,7 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
     defaultValues: {
       wedding_id: guestGroup?.wedding_id ?? "",
       group_type: guestGroup?.group_type ?? "single",
-      table_number: guestGroup?.table_number ?? null,
+      table_number: guestGroup?.table_number ?? "",
       guests:
         guestGroup?.guests?.length
           ? guestGroup.guests.map((guest) => ({
@@ -127,14 +127,13 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
 
   const groupType = form.watch("group_type");
 
-  console.log('guest Group', guestGroup)
 
   useEffect(() => {
     if (mode === "edit" && guestGroup) {
       form.reset({
         wedding_id: guestGroup.wedding_id,
         group_type: guestGroup.group_type,
-        table_number: guestGroup.table_number ?? null,
+        table_number: guestGroup.table_number ?? "",
         guests:
           guestGroup.guests?.length > 0
             ? guestGroup.guests.map((guest) => ({
@@ -367,11 +366,9 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
                       <FormLabel>Table</FormLabel>
                       <FormControl>
                         <Input
-                          type="number"
+                          type="text"
                           value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(e.target.value === "" ? null : Number(e.target.value))
-                          }
+                          onChange={(e) => field.onChange(e.target.value)}
                         />
                       </FormControl>
                       <FormMessage />

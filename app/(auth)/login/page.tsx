@@ -31,7 +31,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signInWithGoogle  } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
 
   const {
     register,
@@ -45,19 +45,19 @@ export default function LoginPage() {
 
 
 
-      const onSubmit = async (data: LoginFormValues) => {
-      setIsLoading(true);
-      const { error } = await signIn (data.email, data.password);
-      if (error) {
-        toast.error('Erreur', { description: error.message });
-      } else {
-        toast.success('Connexion réussi !', {
-          description: 'Vous pouvez maintenant vous connecter.',
-        });
+  const onSubmit = async (data: LoginFormValues) => {
+    setIsLoading(true);
+    const { error } = await signIn(data.email, data.password);
+    if (error) {
+      toast.error('Erreur', { description: error.message });
+    } else {
+      toast.success('Connexion réussi !', {
+        description: 'Vous pouvez maintenant vous connecter.',
+      });
       router.push('/board');
-      }
-      setIsLoading(false);
-    };
+    }
+    setIsLoading(false);
+  };
 
   return (
     <Card className="glass w-full max-w-md border-gold/20 shadow-gold">
@@ -85,7 +85,7 @@ export default function LoginPage() {
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 pb-3">
             <Label htmlFor="password">Mot de passe</Label>
             <div className="relative">
               <Input
@@ -119,26 +119,26 @@ export default function LoginPage() {
           </Button>
 
           <div className="flex items-center w-full">
-              <div className="flex-1 h-px bg-yellow-500/20" />
-              <span className="px-3 text-xs text-gray-400">OU</span>
-              <div className="flex-1 h-px bg-yellow-500/20" />
-            </div>
+            <div className="flex-1 h-px bg-yellow-500/20" />
+            <span className="px-3 text-xs text-gray-400">OU</span>
+            <div className="flex-1 h-px bg-yellow-500/20" />
+          </div>
 
-            {/* GOOGLE BUTTON */}
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-yellow-500/30 hover:bg-yellow-500/10"
-              onClick={signInWithGoogle}
-            >
-              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M21.35 11.1h-9.18v2.98h5.3c-.23 1.5-1.74 4.4-5.3 4.4-3.2 0-5.8-2.65-5.8-5.92s2.6-5.92 5.8-5.92c1.82 0 3.05.77 3.75 1.44l2.56-2.48C17.1 4.1 14.9 3 12.17 3 6.94 3 2.77 7.18 2.77 12.5S6.94 22 12.17 22c6.84 0 9.1-4.78 9.1-7.24 0-.49-.05-.86-.12-1.23Z"
-                />
-              </svg>
-              Continuer avec Google
-            </Button>
+          {/* GOOGLE BUTTON */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-yellow-500/30 hover:bg-yellow-500/10"
+            onClick={signInWithGoogle}
+          >
+            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+              <path
+                fill="currentColor"
+                d="M21.35 11.1h-9.18v2.98h5.3c-.23 1.5-1.74 4.4-5.3 4.4-3.2 0-5.8-2.65-5.8-5.92s2.6-5.92 5.8-5.92c1.82 0 3.05.77 3.75 1.44l2.56-2.48C17.1 4.1 14.9 3 12.17 3 6.94 3 2.77 7.18 2.77 12.5S6.94 22 12.17 22c6.84 0 9.1-4.78 9.1-7.24 0-.49-.05-.86-.12-1.23Z"
+              />
+            </svg>
+            Continuer avec Google
+          </Button>
 
 
           <p className="text-sm text-center text-foreground/70">

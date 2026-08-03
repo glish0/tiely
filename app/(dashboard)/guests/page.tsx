@@ -315,6 +315,9 @@ export default function GuestsPage() {
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left text-xs font-medium text-muted-foreground px-5 py-3">
+                  #
+                </th>
+                <th className="text-left text-xs font-medium text-muted-foreground px-5 py-3">
                   Mariage
                 </th>
                 <th className="text-left text-xs font-medium text-muted-foreground px-5 py-3">
@@ -369,6 +372,9 @@ export default function GuestsPage() {
                       transition={{ delay: i * 0.03 }}
                       className="border-b border-border/50 hover:bg-secondary/40 transition-colors"
                     >
+                      <td className="px-3 py-2 text-sm text-muted-foreground">
+                        {i + 1}
+                      </td>
                       <td className="px-5 py-3.5 text-sm text-muted-foreground">
                         {group.weddings
                           ? `${group.weddings.groom} & ${group.weddings.bride}`
@@ -400,7 +406,7 @@ export default function GuestsPage() {
                       </td>
                       <td className="px-5 py-3.5 text-sm text-muted-foreground">
                         {group.table_number
-                          ? `Table ${group.table_number}`
+                          ? `${group.table_number}`
                           : "-"}
                       </td>
                       <td className="px-5 py-3.5">

@@ -34,12 +34,12 @@ const Navbar = () => {
               {l.label}
             </Link>
           ))}
-          <a
-            href="#cta"
+          <Link
+            href="/login"
             className="bg-gradient-gold rounded-full px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-105"
           >
             Générer mes invitations
-          </a>
+          </Link>
         </div>
 
         {/* Mobile toggle */}

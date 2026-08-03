@@ -42,29 +42,30 @@ export function AuthProvider({
 
 
 
- useEffect(() => {
-  const getSession = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-
-    setUser(session?.user ?? null);
-    setIsLoading(false); // 🔥 IMPORTANT
-  };
-
-  getSession();
-
-  const { data: listener } = supabase.auth.onAuthStateChange(
-    (_event, session) => {
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
 
       setUser(session?.user ?? null);
       setIsLoading(false); // 🔥 IMPORTANT
-    }
-  );
+    };
 
-  return () => {
-    listener.subscription.unsubscribe();
-  };
-}, []);
+    getSession();
 
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+
+        setUser(session?.user ?? null);
+        setIsLoading(false); // 🔥 IMPORTANT
+      }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // ✅ SIGN UP
   // ✅ SIGN UP
   const signUp = async (
     email: string,
@@ -82,6 +83,15 @@ export function AuthProvider({
         },
       },
     });
+
+    if (error) {
+      // Log complet pour debug — tu verras le vrai message dans la console
+      console.error('Erreur signUp Supabase:', {
+        message: error.message,
+        status: error.status,
+        name: error.name,
+      });
+    }
 
     return { error };
   };
@@ -108,10 +118,10 @@ export function AuthProvider({
   };
 
   const signInWithGoogle = async () => {
-  await supabase.auth.signInWithOAuth({
-    provider: 'google',
-  });
-};
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+    });
+  };
 
   // ✅ SIGN OUT
   const signOut = async () => {
