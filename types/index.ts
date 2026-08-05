@@ -42,6 +42,7 @@ export type CreateWeddingInput = {
 };
 
 export type GuestGroupType = "single" | "couple";
+export type familyGroupType = "bride" | "groom";
 export type InvitationStatus = "draft" | "sending" | "sent" | "failed";
 export type InvitationChannel = "manual" | "whatsapp" | "email";
 
@@ -116,6 +117,7 @@ export type GuestWithWedding = {
   last_name: string;
   email: string | null;
   phone: string | null;
+  family_side: string,
   is_child: boolean;
   status: "invited" | "confirmed" | "checked-in";
   checked_in_at: string | null;
@@ -145,6 +147,7 @@ export type GuestGroup = {
   invitation_slug: string | null
 
   group_type: GuestGroupType
+  family_side: familyGroupType
 
   max_guests: number
 

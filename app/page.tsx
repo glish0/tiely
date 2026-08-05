@@ -1,3 +1,5 @@
+"use client"
+
 import Navbar from "@/components/shared/Navbar";
 import HeroSection from "@/components/shared/HeroSection";
 import FeaturesSection from "@/components/shared/FeatureSection";

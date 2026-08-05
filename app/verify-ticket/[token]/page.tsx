@@ -9,6 +9,5 @@ type PageProps = {
 
 export default async function VerifyTicketPage({ params }: PageProps) {
     const { token } = await params;
-    console.log('TOKEN', token)
     return <VerifyTicketClient token={token} />;
 }

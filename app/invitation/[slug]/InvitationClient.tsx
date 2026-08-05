@@ -33,7 +33,7 @@ type Invitation = {
   invitation_slug: string;
   max_guests: number;
   plus_one_allowed: boolean;
-  group_type: "single" | "couple";
+  group_type: "single" | "couple" | "family";
   table_number: number | null;
   rsvp_status: "pending" | "confirmed" | "declined";
   rsvp_confirmed_at: string | null;
@@ -550,7 +550,14 @@ function GuestCard({
           value={invitation.group_type === "couple" ? "Couple" : "Célibataire"}
         />
 
-        <Info label="Places" value={`${invitation.max_guests}`} />
+        <Info
+          label="Places"
+          value={
+            invitation.group_type === "family"
+              ? "∞"
+              : `${invitation.max_guests}`
+          }
+        />
 
         <Info
           label="Table"

@@ -50,8 +50,9 @@ const guestSchema = z.object({
 const schema = z
   .object({
     wedding_id: z.string().min(1, "Le mariage est obligatoire"),
-    group_type: z.enum(["single", "couple"]),
+    group_type: z.enum(["single", "couple", "family"]),
     table_number: z.string(),
+    family_side: z.enum(["bride", "groom"]),
     guests: z.array(guestSchema).min(1).max(2),
   })
   .superRefine((data, ctx) => {
@@ -107,6 +108,7 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
     defaultValues: {
       wedding_id: guestGroup?.wedding_id ?? "",
       group_type: guestGroup?.group_type ?? "single",
+      family_side: guestGroup?.family_side ?? "bride",
       table_number: guestGroup?.table_number ?? "",
       guests:
         guestGroup?.guests?.length
@@ -151,22 +153,40 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
   useEffect(() => {
     const currentGuests = form.getValues("guests");
 
-    if (groupType === "single") {
-      form.setValue("guests", [currentGuests[0] ?? emptyGuest], {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
+    switch (groupType) {
+      case "single":
+        form.setValue(
+          "guests",
+          [currentGuests[0] ?? emptyGuest],
+          {
+            shouldValidate: true,
+            shouldDirty: true,
+          }
+        );
+        break;
 
-    if (groupType === "couple") {
-      form.setValue(
-        "guests",
-        [currentGuests[0] ?? emptyGuest, currentGuests[1] ?? emptyGuest],
-        {
-          shouldValidate: true,
-          shouldDirty: true,
+      case "couple":
+        form.setValue(
+          "guests",
+          [
+            currentGuests[0] ?? emptyGuest,
+            currentGuests[1] ?? emptyGuest,
+          ],
+          {
+            shouldValidate: true,
+            shouldDirty: true,
+          }
+        );
+        break;
+
+      case "family":
+        if (currentGuests.length === 0) {
+          form.setValue("guests", [{ ...emptyGuest }], {
+            shouldValidate: true,
+            shouldDirty: true,
+          });
         }
-      );
+        break;
     }
   }, [groupType, form]);
 
@@ -182,9 +202,43 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
     }
   }, [weddings, form, mode]);
 
+
+  const familySide = form.watch("family_side");
+
+  useEffect(() => {
+    if (groupType !== "family") return;
+
+    const ticketName = getTicketName(groupType, familySide);
+
+    form.setValue("guests.0.first_name", ticketName, {
+      shouldDirty: true,
+    });
+
+    form.setValue("guests.0.last_name", "Multiple", {
+      shouldDirty: true,
+    });
+  }, [groupType, familySide, form]);
+
+  const getDefaultValues = () => ({
+    wedding_id: weddings[0]?.id ?? "",
+    group_type: "single" as const,
+    family_side: "bride" as const,
+    table_number: "",
+    guests: [
+      {
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        is_child: false,
+      },
+    ],
+  });
+
   const onSubmit = async (values: FormValues) => {
     try {
       setLoading(true);
+
 
       const expectedGuestCount = values.group_type === "couple" ? 2 : 1;
 
@@ -206,6 +260,7 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
         });
       } else {
         await createGuestMutation(payload);
+        form.reset(getDefaultValues());
       }
 
       setOpen(false);
@@ -228,7 +283,7 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
             <FormItem>
               <FormLabel>Nom</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} disabled={groupType === "family"} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -301,6 +356,23 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
     </div>
   );
 
+  const getTicketName = (
+    groupType: string,
+    familySide?: "bride" | "groom"
+  ) => {
+    if (groupType === "family") {
+      return familySide === "groom"
+        ? "Famille du marié"
+        : "Famille de la mariée";
+    }
+
+    if (groupType === "couple") {
+      return "Billet couple";
+    }
+
+    return "Billet individuel";
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
@@ -351,12 +423,41 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
                       <SelectContent>
                         <SelectItem value="single">Personne seule</SelectItem>
                         <SelectItem value="couple">Couple</SelectItem>
+                        <SelectItem value="family">Famille</SelectItem>
+
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              {groupType === "family" && (
+                <FormField
+                  control={form.control}
+                  name="family_side"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choisir une famille" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        <SelectItem value="bride">
+                          Famille de la mariée
+                        </SelectItem>
+
+                        <SelectItem value="groom">
+                          Famille du marié
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              )}
               <div>
                 <FormField
                   control={form.control}

@@ -10,6 +10,8 @@ import {
     UserCheck,
     XCircle,
 } from "lucide-react";
+import { useState } from "react";
+import { AccessCodeModal } from "./access-code-modal";
 
 
 
@@ -18,6 +20,7 @@ type VerifyTicketClientProps = {
 };
 
 export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
+    const [openAccessModal, setOpenAccessModal] = useState(false);
     const {
         data: verification,
         isLoading,
@@ -81,8 +84,14 @@ export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
                 <div className="mt-8 grid gap-4">
                     <InfoCard
                         label="Nombre de places"
-                        value={`${ticket.max_guests}`}
+                        value={
+                            ticket.group_type === "family"
+                                ? "∞"
+                                : `${ticket.max_guests}`
+                        }
                     />
+
+
 
                     <InfoCard
                         label="Type d’invitation"
@@ -145,7 +154,8 @@ export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
 
                 {!alreadyCheckedIn && (
                     <button
-                        onClick={() => checkInMutation(ticket.id)}
+
+                        onClick={() => setOpenAccessModal(true)}
                         disabled={isPending}
                         className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-green-500 px-5 py-4 font-bold text-white transition hover:bg-green-600 disabled:opacity-60"
                     >
@@ -164,6 +174,13 @@ export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
                     </p>
                 )}
             </section>
+            <AccessCodeModal
+                open={openAccessModal}
+                onClose={() => setOpenAccessModal(false)}
+                onSuccess={() => {
+                    checkInMutation(ticket.id);
+                }}
+            />
         </main>
     );
 }

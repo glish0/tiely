@@ -4,7 +4,7 @@ export type TicketVerificationTicket = {
     id: string;
     wedding_id: string;
     name: string;
-    group_type: "single" | "couple";
+    group_type: "single" | "couple" | "family";
     max_guests: number;
     table_number: number | null;
     rsvp_status: "pending" | "confirmed" | "declined";
