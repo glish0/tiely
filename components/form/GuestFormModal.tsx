@@ -89,11 +89,10 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const { data: weddings = [] } = useWeddingOptions();
   const { mutate: createGuestMutation } = useCreateGuest();
   const { mutate: updateGuestMutation } = useUpdateGuest();
-  const selectedWeddingId = weddings[0]?.id || "";
+
 
   const emptyGuest = {
     first_name: "",
@@ -135,6 +134,7 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
       form.reset({
         wedding_id: guestGroup.wedding_id,
         group_type: guestGroup.group_type,
+        family_side: guestGroup.family_side ?? "bride",
         table_number: guestGroup.table_number ?? "",
         guests:
           guestGroup.guests?.length > 0
@@ -238,6 +238,7 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
   const onSubmit = async (values: FormValues) => {
     try {
       setLoading(true);
+      console.log("SUBMIT", values);
 
 
       const expectedGuestCount = values.group_type === "couple" ? 2 : 1;
@@ -385,7 +386,12 @@ export function GuestFormModal({ mode, trigger, guestGroup }: GuestFormModalProp
         </DialogHeader>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(
+              onSubmit,
+              (errors) => {
+                console.log("ERREURS", errors);
+              }
+            )}
             className="space-y-4 pt-2 "
           >
             <div>

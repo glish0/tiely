@@ -4,6 +4,7 @@ export type TicketVerificationTicket = {
     id: string;
     wedding_id: string;
     name: string;
+    scanned_count: number,
     group_type: "single" | "couple" | "family";
     max_guests: number;
     table_number: number | null;

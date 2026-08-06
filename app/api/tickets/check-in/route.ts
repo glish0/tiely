@@ -17,7 +17,13 @@ export async function POST(req: Request) {
 
         const { data: existingTicket } = await supabase
             .from("guest_groups")
-            .select("id, checked_in_at")
+            .select(`
+    id,
+    group_type,
+    checked_in_at,
+    scanned_count,
+    max_guests
+  `)
             .eq("id", ticketId)
             .single();
 
@@ -28,30 +34,41 @@ export async function POST(req: Request) {
             );
         }
 
-        if (existingTicket.checked_in_at) {
+        if (
+            existingTicket.group_type !== "family" &&
+            existingTicket.checked_in_at
+        ) {
             return NextResponse.json(
                 { message: "Ce billet a déjà été utilisé" },
                 { status: 409 }
             );
         }
 
+        const updateData: Record<string, unknown> = {};
+
+        if (existingTicket.group_type === "family") {
+            updateData.scanned_count =
+                (existingTicket.scanned_count ?? 0) + 1;
+        } else {
+            updateData.checked_in_at = new Date().toISOString();
+        }
+
         const { data, error } = await supabase
             .from("guest_groups")
-            .update({
-                checked_in_at: new Date().toISOString(),
-            })
+            .update(updateData)
             .eq("id", ticketId)
             .select(`
-        id,
-        name,
-        max_guests,
-        group_type,
-        table_number,
-        rsvp_status,
-        rsvp_confirmed_at,
-        checked_in_at,
-        qr_token
-      `)
+      id,
+      name,
+      max_guests,
+      group_type,
+      table_number,
+      rsvp_status,
+      rsvp_confirmed_at,
+      checked_in_at,
+      scanned_count,
+      qr_token
+  `)
             .single();
 
         if (error || !data) {

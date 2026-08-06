@@ -61,8 +61,11 @@ export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
 
 
 
-    const alreadyCheckedIn = Boolean(ticket.checked_in_at);
+    const alreadyCheckedIn =
+        ticket.group_type !== "family" &&
+        Boolean(ticket.checked_in_at);
     const isConfirmed = ticket.rsvp_status === "confirmed";
+
 
     return (
         <main className="min-h-screen bg-slate-950 px-4 py-8 text-white">
@@ -100,6 +103,10 @@ export function VerifyTicketClient({ token }: VerifyTicketClientProps) {
                                 ? "Couple"
                                 : "Individuelle"
                         }
+                    />
+                    <InfoCard
+                        label="Entrées"
+                        value={`${ticket.scanned_count}/${ticket.max_guests}`}
                     />
 
                     <InfoCard
